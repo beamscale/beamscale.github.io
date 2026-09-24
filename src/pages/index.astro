@@ -1,0 +1,217 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const workflow = [
+  ['01', 'check', 'admit source + dependencies'],
+  ['02', 'build', 'compile Gleam to verified BEAM'],
+  ['03', 'package', 'bind manifest + admission evidence'],
+  ['04', 'verify', 'validate the signed artifact locally'],
+  ['05', 'deploy', 'apply only changed build digests'],
+];
+---
+
+<SiteLayout>
+  <section class="hero" id="thesis">
+    <div class="hero-copy">
+      <p class="eyebrow">serverless, but native to the beam</p>
+      <h1>
+        keep the runtime.<br />
+        <span>replace the work.</span>
+      </h1>
+      <p class="hero-deck">
+        BeamScale hosts Gleam workers on long-lived BEAM runtimes while giving every invocation a fresh,
+        supervised process. Deployments switch by immutable build identity instead of forcing a whole runtime restart.
+      </p>
+      <div class="hero-actions">
+        <a class="button button--primary" href="#workflow">trace a deploy</a>
+        <a class="button button--ghost" href="https://github.com/beamscale">open github</a>
+      </div>
+    </div>
+
+    <div class="hero-instrument" aria-label="Runtime behavior illustration">
+      <div class="instrument-head">
+        <span>tenant shard / runtime 07</span>
+        <span class="instrument-live">live</span>
+      </div>
+      <div class="generation-row">
+        <span class="generation-label">generation</span>
+        <strong>g42</strong>
+        <code>slot_01</code>
+      </div>
+      <div class="process-stack">
+        <div class="process-row process-row--trusted">
+          <span>p1</span>
+          <strong>outer supervisor</strong>
+          <em>months</em>
+        </div>
+        <div class="process-row process-row--trusted">
+          <span>p2</span>
+          <strong>runtime supervisor</strong>
+          <em>replaceable</em>
+        </div>
+        <div class="process-break"><span>requests</span></div>
+        <div class="process-row process-row--ephemeral">
+          <span>p3</span>
+          <strong>invocation 8ff2</strong>
+          <em>fresh</em>
+        </div>
+        <div class="process-row process-row--ephemeral is-dim">
+          <span>p3</span>
+          <strong>invocation 901c</strong>
+          <em>done</em>
+        </div>
+      </div>
+      <div class="instrument-foot">
+        <span><i></i> vm warm</span>
+        <span><i></i> request isolated</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="statement-strip" aria-label="BeamScale summary">
+    <span>one tenant shard</span>
+    <span>one beam vm</span>
+    <span>fresh actor per request</span>
+    <span>signed immutable builds</span>
+  </section>
+
+  <section class="section section--runtime" id="runtime">
+    <div class="section-marker">01 / runtime model</div>
+    <div class="section-heading">
+      <p class="eyebrow">a different unit of reuse</p>
+      <h2>reuse the expensive part.<br />discard request state.</h2>
+      <p>
+        The BEAM VM and trusted supervision tree can survive deployments. Tenant request processes cannot.
+        That separation lets the platform keep runtime continuity without turning worker state into an accidental cache.
+      </p>
+    </div>
+
+    <div class="runtime-ledger">
+      <article>
+        <span class="ledger-index">a</span>
+        <div>
+          <h3>long-lived runtime</h3>
+          <p>Outer and inner supervisors own trusted lifecycle, routing, deployment bookkeeping, and resource enforcement.</p>
+        </div>
+        <strong>stable</strong>
+      </article>
+      <article>
+        <span class="ledger-index">b</span>
+        <div>
+          <h3>fresh invocation actor</h3>
+          <p>Each request receives exactly one tenant-owned BEAM process with bounded wall time, reductions, heap, and output.</p>
+        </div>
+        <strong>ephemeral</strong>
+      </article>
+      <article>
+        <span class="ledger-index">c</span>
+        <div>
+          <h3>generation pinning</h3>
+          <p>In-flight work stays on its immutable deployment generation, even while new root traffic switches forward.</p>
+        </div>
+        <strong>affine</strong>
+      </article>
+    </div>
+  </section>
+
+  <section class="section security-grid" id="security">
+    <div class="section-marker">02 / security boundary</div>
+    <div class="security-copy">
+      <p class="eyebrow">authority is injected, not ambient</p>
+      <h2>code gets capabilities.<br />not the machine.</h2>
+      <p>
+        Hosted workers do not receive generic filesystem, process, raw socket, native-code, or code-loading authority.
+        Privileged I/O is exposed through scoped context capabilities and rechecked through the compiler and runtime.
+      </p>
+    </div>
+
+    <div class="policy-card">
+      <div class="policy-title"><span>worker policy</span><code>fail-closed</code></div>
+      <pre><code>[security]
+filesystem       = "deny"
+process_exec     = "deny"
+process_creation = "deny"
+raw_sockets      = "deny"
+native_code      = "deny"
+
+[permissions]
+http    = ["api.example.com"]
+secrets = ["API_TOKEN"]
+kv      = ["sessions"]
+
+[limits]
+max_processes = 1</code></pre>
+    </div>
+
+    <div class="capability-marquee" aria-label="Examples of scoped capabilities">
+      <span>ctx.http</span><span>ctx.cluster</span><span>ctx.kv</span><span>ctx.db</span><span>ctx.secrets</span><span>ctx.queue</span>
+    </div>
+  </section>
+
+  <section class="section section--deployments" id="deployments">
+    <div class="section-marker">03 / deployments</div>
+    <div class="section-heading section-heading--narrow">
+      <p class="eyebrow">deployment identity is not a git commit</p>
+      <h2>ship the units that changed.</h2>
+      <p>
+        BeamScale plans deployments from typed Lambda and middleware artifacts. If a build digest is unchanged, the unit is reused instead of uploaded and applied again.
+      </p>
+    </div>
+
+    <div class="deploy-map">
+      <div class="deploy-column">
+        <span class="deploy-label">before</span>
+        <div class="deploy-unit is-stable"><code>users/create</code><span>8d91…</span></div>
+        <div class="deploy-unit"><code>billing/invoice</code><span>31af…</span></div>
+        <div class="deploy-unit is-stable"><code>middleware/auth</code><span>0bc4…</span></div>
+      </div>
+      <div class="deploy-diff" aria-hidden="true">
+        <span>same</span>
+        <span>→</span>
+        <span class="changed">changed</span>
+        <span>→</span>
+        <span>same</span>
+      </div>
+      <div class="deploy-column">
+        <span class="deploy-label">after</span>
+        <div class="deploy-unit is-stable"><code>users/create</code><span>8d91…</span></div>
+        <div class="deploy-unit is-new"><code>billing/invoice</code><span>f204…</span></div>
+        <div class="deploy-unit is-stable"><code>middleware/auth</code><span>0bc4…</span></div>
+      </div>
+    </div>
+
+    <div class="deploy-note">
+      <strong>changed-only is the default.</strong>
+      <span>focused deploy selectors do not delete unrelated units; full-tree pruning is explicit.</span>
+    </div>
+  </section>
+
+  <section class="section section--workflow" id="workflow">
+    <div class="section-marker">04 / workflow</div>
+    <div class="workflow-head">
+      <div>
+        <p class="eyebrow">one artifact contract end to end</p>
+        <h2>check → build → sign → verify → deploy</h2>
+      </div>
+      <div class="terminal-chip">$ bmscl deploy dist --project billing</div>
+    </div>
+
+    <div class="workflow-list">
+      {workflow.map(([index, command, description]) => (
+        <div class="workflow-row">
+          <span>{index}</span>
+          <code>bmscl {command}</code>
+          <p>{description}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="final-cta">
+      <div>
+        <span class="eyebrow">the beam is already good at staying alive.</span>
+        <h2>use that property.</h2>
+      </div>
+      <a class="button button--primary button--large" href="https://github.com/beamscale">explore beamscale</a>
+    </div>
+  </section>
+</SiteLayout>
