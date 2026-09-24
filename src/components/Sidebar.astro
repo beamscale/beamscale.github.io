@@ -1,0 +1,47 @@
+---
+const nav = [
+  ['00', 'thesis', '#thesis'],
+  ['01', 'runtime model', '#runtime'],
+  ['02', 'security boundary', '#security'],
+  ['03', 'deployments', '#deployments'],
+  ['04', 'workflow', '#workflow'],
+];
+---
+
+<div class="drawer-backdrop" data-drawer-backdrop data-open="false"></div>
+
+<aside class="side-rail" id="site-drawer" data-drawer data-open="false" aria-label="Site navigation">
+  <div class="rail-topline">
+    <span>runtime map</span>
+    <button type="button" class="rail-close" data-drawer-close aria-label="Close navigation">×</button>
+  </div>
+
+  <nav class="rail-nav">
+    {nav.map(([index, label, href]) => (
+      <a href={href}>
+        <span>{index}</span>
+        <strong>{label}</strong>
+      </a>
+    ))}
+  </nav>
+
+  <div class="rail-diagram" aria-label="BeamScale process hierarchy">
+    <div class="rail-node rail-node--outer">p1 <span>granddaddy</span></div>
+    <div class="rail-line"></div>
+    <div class="rail-node">p2 <span>daddy runtime</span></div>
+    <div class="rail-branch">
+      <i></i><i></i><i></i>
+    </div>
+    <div class="rail-workers">
+      <span>p3</span><span>p3</span><span>p3</span>
+    </div>
+    <p>trusted supervisors stay up.<br />tenant invocations do not.</p>
+  </div>
+
+  <div class="rail-foot">
+    <span>build identity</span>
+    <code>build_sha256</code>
+    <span>runtime</span>
+    <code>erlang / beam</code>
+  </div>
+</aside>
