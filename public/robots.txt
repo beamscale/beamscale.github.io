@@ -1,4 +1,2 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://beamscale.github.io/sitemap-index.xml
