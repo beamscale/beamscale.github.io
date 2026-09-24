@@ -1,0 +1,35 @@
+---
+const githubUrl = 'https://github.com/beamscale';
+---
+
+<header class="site-header">
+  <a class="brand-lockup" href="/" aria-label="BeamScale home">
+    <span class="brand-mark" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </span>
+    <span class="brand-copy">
+      <strong>beamscale</strong>
+      <small>hosted gleam / beam runtime</small>
+    </span>
+  </a>
+
+  <div class="header-status" aria-label="Runtime positioning">
+    <span class="status-dot" aria-hidden="true"></span>
+    fresh process per invocation
+  </div>
+
+  <div class="header-actions">
+    <a class="header-link" href={githubUrl}>github</a>
+    <a class="header-cta" href="#workflow">see the workflow</a>
+    <button
+      class="drawer-toggle"
+      type="button"
+      data-drawer-toggle
+      aria-controls="site-drawer"
+      aria-expanded="false"
+      aria-label="Open navigation"
+    >
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
