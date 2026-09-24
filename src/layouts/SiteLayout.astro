@@ -1,0 +1,72 @@
+---
+import Header from '../components/Header.astro';
+import Sidebar from '../components/Sidebar.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'BeamScale — Hosted Gleam on the BEAM',
+  description = 'Capability-first hosted Gleam workers with fresh BEAM processes per invocation, hot deployments, signed artifacts, and changed-only deploys.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#10120f" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="site-shell">
+      <Header />
+      <div class="shell-grid">
+        <Sidebar />
+        <main id="content" class="site-main">
+          <slot />
+          <Footer />
+        </main>
+      </div>
+    </div>
+
+    <script is:inline>
+      const drawer = document.querySelector('[data-drawer]');
+      const backdrop = document.querySelector('[data-drawer-backdrop]');
+      const toggles = document.querySelectorAll('[data-drawer-toggle]');
+      const closeButtons = document.querySelectorAll('[data-drawer-close]');
+
+      const setDrawer = (open) => {
+        if (!(drawer instanceof HTMLElement) || !(backdrop instanceof HTMLElement)) return;
+        drawer.dataset.open = String(open);
+        backdrop.dataset.open = String(open);
+        document.body.classList.toggle('drawer-open', open);
+        toggles.forEach((button) => button.setAttribute('aria-expanded', String(open)));
+      };
+
+      toggles.forEach((button) => button.addEventListener('click', () => {
+        const isOpen = drawer instanceof HTMLElement && drawer.dataset.open === 'true';
+        setDrawer(!isOpen);
+      }));
+
+      closeButtons.forEach((button) => button.addEventListener('click', () => setDrawer(false)));
+      backdrop?.addEventListener('click', () => setDrawer(false));
+      drawer?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setDrawer(false)));
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setDrawer(false);
+      });
+    </script>
+  </body>
+</html>
